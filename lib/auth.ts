@@ -166,7 +166,7 @@ export const auth = betterAuth({
 
         await sendEmail({
           to: email,
-          subject: "Sign in link for Pages CMS",
+          subject: "Your Vainer CMS sign-in link",
           html,
         });
       },

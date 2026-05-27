@@ -14,6 +14,7 @@ import {
   Tailwind,
 } from "@react-email/components";
 import { emailTheme } from "@/components/email/theme";
+import { friendlyProjectName } from "@/lib/brand";
 
 export const InviteEmailTemplate = ({
   email,
@@ -33,12 +34,13 @@ export const InviteEmailTemplate = ({
     : process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "";
+  const projectName = friendlyProjectName(repoName);
 
   return (
     <Html>
       <Head />
       <Preview>
-        {invitedByName} invited you to &quot;{repoName}&quot;
+        {invitedByName} invited you to edit {projectName}
       </Preview>
       <Tailwind>
         <Body
@@ -49,20 +51,24 @@ export const InviteEmailTemplate = ({
           }}
         >
           <Container className="my-[40px] mx-auto p-[20px] max-w-[465px]">
-            <Section className="mt-[24px]">
+            <Section
+              className="rounded-[12px] py-[28px] text-center"
+              style={{ backgroundColor: emailTheme.headerBackground }}
+            >
               <Img
                 src={`${baseUrl}/images/email-logo.png`}
-                width="42"
-                height="42"
-                alt="Pages CMS"
+                width="150"
+                height="38"
+                alt="Vainer Marketing"
                 className="my-0 mx-auto"
+                style={{ objectFit: "contain" }}
               />
             </Section>
             <Heading
               className="text-[24px] font-semibold p-0 my-[30px] mx-0 text-center tracking-tight"
               style={{ color: emailTheme.foreground }}
             >
-              Join &quot;{repoName}&quot; on Pages CMS
+              You&apos;ve been invited to edit {projectName}
             </Heading>
             <Text
               className="text-[16px] leading-[24px]"
@@ -75,8 +81,9 @@ export const InviteEmailTemplate = ({
               >
                 {invitedByName}
               </Link>{" "}
-              has invited you to the &quot;{repoName}&quot; project on Pages
-              CMS. Use the following link to start collaborating:
+              has given you access to edit the content on{" "}
+              <strong>{projectName}</strong>. Click below to start editing — no
+              account or password needed.
             </Text>
             <Section className="text-center mt-[24px] mb-[24px]">
               <Button
@@ -88,14 +95,14 @@ export const InviteEmailTemplate = ({
                   color: emailTheme.buttonForeground,
                 }}
               >
-                Join &quot;{repoName}&quot;
+                Open {projectName}
               </Button>
             </Section>
             <Text
               className="text-[16px] leading-[24px]"
               style={{ color: emailTheme.foreground }}
             >
-              or copy and paste this URL into your browser:{" "}
+              or copy and paste this link into your browser:{" "}
             </Text>
             <Text
               className="text-[16px] leading-[24px]"
@@ -121,7 +128,7 @@ export const InviteEmailTemplate = ({
               >
                 {email}
               </Link>
-              . If you think this is a mistake, you can safely ignore this
+              . If you weren&apos;t expecting it, you can safely ignore this
               email.
             </Text>
           </Container>

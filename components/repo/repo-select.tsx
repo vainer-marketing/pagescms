@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useUser } from "@/contexts/user-context";
 import { getGithubInstallationUrl } from "@/lib/github-app";
+import { friendlyProjectName } from "@/lib/brand";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
@@ -195,7 +196,7 @@ export function RepoSelect({
                   <Link
                     className="truncate font-medium hover:underline"
                     href={`/${result.owner}/${result.repo}/${result.defaultBranch ? encodeURIComponent(result.defaultBranch) : ""}`}
-                  >{result.repo}</Link>
+                  >{friendlyProjectName(result.repo)}</Link>
                   {result.private && <LockKeyhole className="h-3 w-3 opacity-50"/>}
                   {result.updatedAt &&
                     <div className="text-muted-foreground truncate">{formatDistanceToNow(new Date(result.updatedAt))} ago</div>

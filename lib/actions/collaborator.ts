@@ -8,6 +8,7 @@ import { InviteEmailTemplate } from "@/components/email/invite";
 import { CollaboratorAddedEmailTemplate } from "@/components/email/collaborator-added";
 import { render } from "@react-email/render";
 import { sendEmail } from "@/lib/mailer";
+import { BRAND_NAME, friendlyProjectName } from "@/lib/brand";
 import { getBaseUrl } from "@/lib/base-url";
 import { db } from "@/db";
 import { and, eq, sql } from "drizzle-orm";
@@ -48,7 +49,7 @@ const assertRepoInInstallation = async (
       installationRepo.name?.toLowerCase() === repo.toLowerCase()
     )
   );
-  if (!isInstalledForRepo) throw new Error(`"${owner}/${repo}" is not part of your Pages CMS installation.`);
+  if (!isInstalledForRepo) throw new Error(`"${owner}/${repo}" is not part of your ${BRAND_NAME} installation.`);
 
   return {
     repoAccess,
@@ -185,7 +186,7 @@ const handleAddCollaborator = async (prevState: any, formData: FormData) => {
           const html = await render(
             InviteEmailTemplate({
               inviteUrl,
-              repoName: `${formData.get("owner")}/${formData.get("repo")}`,
+              repoName: repo,
               email: normalizedEmail,
               invitedByName: user.name || user.githubUsername || user.email,
               invitedByUrl: `https://github.com/${user.githubUsername}`,
@@ -193,7 +194,7 @@ const handleAddCollaborator = async (prevState: any, formData: FormData) => {
           );
           await sendEmail({
             to: normalizedEmail,
-            subject: `Join "${owner}/${repo}" on Pages CMS`,
+            subject: `You've been invited to edit ${friendlyProjectName(repo)}`,
             html,
           });
         } catch (error: any) {
@@ -206,7 +207,7 @@ const handleAddCollaborator = async (prevState: any, formData: FormData) => {
           const html = await render(
             CollaboratorAddedEmailTemplate({
               email: normalizedEmail,
-              repoName: `${formData.get("owner")}/${formData.get("repo")}`,
+              repoName: repo,
               repoUrl,
               invitedByName: user.name || user.githubUsername || user.email,
               invitedByUrl: `https://github.com/${user.githubUsername}`,
@@ -214,7 +215,7 @@ const handleAddCollaborator = async (prevState: any, formData: FormData) => {
           );
           await sendEmail({
             to: normalizedEmail,
-            subject: `You were added to "${owner}/${repo}" on Pages CMS`,
+            subject: `You now have access to ${friendlyProjectName(repo)}`,
             html,
           });
         } catch (error: any) {

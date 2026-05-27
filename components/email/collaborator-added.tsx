@@ -14,6 +14,7 @@ import {
   Tailwind,
 } from "@react-email/components";
 import { emailTheme } from "@/components/email/theme";
+import { friendlyProjectName } from "@/lib/brand";
 
 export const CollaboratorAddedEmailTemplate = ({
   email,
@@ -33,13 +34,12 @@ export const CollaboratorAddedEmailTemplate = ({
     : process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "";
+  const projectName = friendlyProjectName(repoName);
 
   return (
     <Html>
       <Head />
-      <Preview>
-        You were added to &quot;{repoName}&quot; on Pages CMS
-      </Preview>
+      <Preview>You now have access to {projectName}</Preview>
       <Tailwind>
         <Body
           className="my-auto mx-auto font-sans px-2 antialiased"
@@ -49,20 +49,24 @@ export const CollaboratorAddedEmailTemplate = ({
           }}
         >
           <Container className="my-[40px] mx-auto p-[20px] max-w-[465px]">
-            <Section className="mt-[24px]">
+            <Section
+              className="rounded-[12px] py-[28px] text-center"
+              style={{ backgroundColor: emailTheme.headerBackground }}
+            >
               <Img
                 src={`${baseUrl}/images/email-logo.png`}
-                width="42"
-                height="42"
-                alt="Pages CMS"
+                width="150"
+                height="38"
+                alt="Vainer Marketing"
                 className="my-0 mx-auto"
+                style={{ objectFit: "contain" }}
               />
             </Section>
             <Heading
               className="text-[24px] font-semibold p-0 my-[30px] mx-0 text-center tracking-tight"
               style={{ color: emailTheme.foreground }}
             >
-              You were added to &quot;{repoName}&quot;
+              You now have access to {projectName}
             </Heading>
             <Text
               className="text-[16px] leading-[24px]"
@@ -75,8 +79,8 @@ export const CollaboratorAddedEmailTemplate = ({
               >
                 {invitedByName}
               </Link>{" "}
-              added you to the &quot;{repoName}&quot; project on Pages CMS.
-              You already have access, so there is nothing to accept.
+              gave you access to edit <strong>{projectName}</strong>. You&apos;re
+              all set — there&apos;s nothing to accept.
             </Text>
             <Section className="text-center mt-[24px] mb-[24px]">
               <Button
@@ -88,7 +92,7 @@ export const CollaboratorAddedEmailTemplate = ({
                   color: emailTheme.buttonForeground,
                 }}
               >
-                Open &quot;{repoName}&quot;
+                Open {projectName}
               </Button>
             </Section>
             <Text

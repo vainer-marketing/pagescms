@@ -14,6 +14,7 @@ import {
   Tailwind,
 } from "@react-email/components";
 import { emailTheme } from "@/components/email/theme";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const LoginEmailTemplate = ({
   url,
@@ -31,7 +32,7 @@ export const LoginEmailTemplate = ({
   return (
     <Html>
       <Head />
-      <Preview>Sign in to Pages CMS</Preview>
+      <Preview>Your {BRAND_NAME} sign-in link</Preview>
       <Tailwind>
         <Body
           className="my-auto mx-auto font-sans px-2 antialiased"
@@ -41,26 +42,30 @@ export const LoginEmailTemplate = ({
           }}
         >
           <Container className="my-[40px] mx-auto p-[20px] max-w-[465px]">
-            <Section className="mt-[24px]">
+            <Section
+              className="rounded-[12px] py-[28px] text-center"
+              style={{ backgroundColor: emailTheme.headerBackground }}
+            >
               <Img
                 src={`${baseUrl}/images/email-logo.png`}
-                width="42"
-                height="42"
-                alt="Pages CMS"
+                width="150"
+                height="38"
+                alt="Vainer Marketing"
                 className="my-0 mx-auto"
+                style={{ objectFit: "contain" }}
               />
             </Section>
             <Heading
               className="text-[24px] font-semibold p-0 my-[30px] mx-0 text-center tracking-tight"
               style={{ color: emailTheme.foreground }}
             >
-              Sign in to Pages CMS
+              Sign in to {BRAND_NAME}
             </Heading>
             <Text
               className="text-[16px] leading-[24px]"
               style={{ color: emailTheme.foreground }}
             >
-              Click the button below to sign in to Pages CMS:
+              Click the button below to securely sign in. No password needed.
             </Text>
             <Section className="text-center mt-[24px] mb-[24px]">
               <Button
@@ -79,7 +84,7 @@ export const LoginEmailTemplate = ({
               className="text-[16px] leading-[24px]"
               style={{ color: emailTheme.foreground }}
             >
-              or copy and paste this URL into your browser:{" "}
+              or copy and paste this link into your browser:{" "}
             </Text>
             <Text
               className="text-[16px] leading-[24px]"

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { friendlyProjectName } from "@/lib/brand";
 
-const APP_TITLE = "Pages CMS";
+const APP_TITLE = "Vainer CMS";
 
 export const formatDocumentTitle = (title?: string | null) =>
   title ? `${title} | ${APP_TITLE}` : APP_TITLE;
@@ -13,8 +14,7 @@ export const formatRepoBranchTitle = (
   repo: string,
   branch?: string,
 ) => {
-  const repoRef = `${owner}/${repo}${branch ? `@${branch}` : ""}`;
-  return `${title} | ${repoRef}`;
+  return `${title} | ${friendlyProjectName(repo)}`;
 };
 
 export function DocumentTitle({
