@@ -261,7 +261,10 @@ export function Collection({ name, path }: { name: string; path?: string }) {
   const requestedFieldPaths = useMemo(() => {
     const paths = new Set<string>(["name", "path", primaryField]);
     viewFields.forEach((item: any) => paths.add(item.path));
-    liveUrlFieldRefs.forEach((ref) => paths.add(ref));
+    // Prefix with "fields." so the API's "path" filter doesn't strip a frontmatter
+    // field that happens to share the name of the file-path URL param (e.g. legacy
+    // WP migrations that store the preserved URL in a frontmatter field called "path").
+    liveUrlFieldRefs.forEach((ref) => paths.add(`fields.${ref}`));
     return Array.from(paths);
   }, [primaryField, viewFields, liveUrlFieldRefs]);
 
