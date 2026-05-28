@@ -76,7 +76,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EllipsisVertical, FolderPlus, Plus, Search } from "lucide-react";
+import { EllipsisVertical, ExternalLink, FolderPlus, Plus, Search } from "lucide-react";
+import { resolveEntryLiveUrl } from "@/lib/live-url";
 import {
   Tooltip,
   TooltipContent,
@@ -540,10 +541,38 @@ export function Collection({ name, path }: { name: string; path?: string }) {
     tableColumns.push({
       accessorKey: "actions",
       header: "Actions",
-      cell: ({ row }: { row: any }) => (
+      cell: ({ row }: { row: any }) => {
+        const liveUrl = row.original.type === "file"
+          ? resolveEntryLiveUrl({
+              config: config?.object,
+              schema,
+              path: row.original.path,
+              fields: row.original.fields ?? row.original.contentObject ?? undefined,
+            })
+          : null;
+        return (
         <div className="flex gap-1 justify-end">
           {row.original.type === "file" && (
             <ButtonGroup>
+              {liveUrl && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a
+                      href={liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "icon-sm" }),
+                      )}
+                      aria-label="View live"
+                    >
+                      <ExternalLink className="size-4" />
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>View live</TooltipContent>
+                </Tooltip>
+              )}
               <Link
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
@@ -647,7 +676,8 @@ export function Collection({ name, path }: { name: string; path?: string }) {
               </Tooltip>
             ))}
         </div>
-      ),
+        );
+      },
       enableSorting: false,
     });
 
