@@ -655,10 +655,16 @@ const ContentLeafSchema = z
             .strict()
             .optional()
             .nullable(),
+          liveUrl: z
+            .string({
+              message: "'liveUrl' must be a string template (e.g. '/blog/{slug}').",
+            })
+            .optional()
+            .nullable(),
         },
         {
           message:
-            "'view' must be an object with 'fields', 'primary', 'sort', 'search' and 'default' attributes.",
+            "'view' must be an object with 'fields', 'primary', 'sort', 'search', 'default', and 'liveUrl' attributes.",
         },
       )
       .strict()
@@ -768,6 +774,24 @@ const ConfigSchema = z
       .boolean({
         message: "'hide' must be a boolean.",
       })
+      .optional(),
+    site: z
+      .object(
+        {
+          baseUrl: z
+            .string({
+              message: "'site.baseUrl' must be a string (e.g. 'https://example.com').",
+            })
+            .url({
+              message: "'site.baseUrl' must be a valid URL.",
+            })
+            .optional(),
+        },
+        {
+          message: "'site' must be an object with a 'baseUrl' attribute.",
+        },
+      )
+      .strict()
       .optional(),
     media: MediaSchema.optional(),
     content: z

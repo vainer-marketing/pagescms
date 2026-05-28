@@ -63,7 +63,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner";
-import { EllipsisVertical, History, Lock, LockOpen, Save } from "lucide-react";
+import { EllipsisVertical, ExternalLink, History, Lock, LockOpen, Save } from "lucide-react";
+import { resolveEntryLiveUrl } from "@/lib/live-url";
 import useSWR, { useSWRConfig } from "swr";
 
 type LintView = {
@@ -122,6 +123,15 @@ export function Entry({
     return getSchemaByName(config?.object, name)
   }, [config, name]);
   const schemaType = schema?.type;
+  const liveUrl = useMemo(
+    () => resolveEntryLiveUrl({
+      config: config?.object,
+      schema,
+      path,
+      fields: (entry?.contentObject as Record<string, any> | undefined) ?? undefined,
+    }),
+    [config, schema, path, entry?.contentObject],
+  );
   const operations = useMemo(
     () =>
       resolveContentOperations({
@@ -667,6 +677,23 @@ export function Entry({
       {showHeaderActions && (
         <div className="flex shrink-0 items-center gap-x-2">
           {headerActionsNode}
+          {path && liveUrl && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href={liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground shrink-0"
+                  aria-label="View live"
+                >
+                  <ExternalLink className="size-4 sm:hidden" />
+                  <span className="hidden sm:inline">View live</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Open the published page in a new tab</TooltipContent>
+            </Tooltip>
+          )}
           {path && (
             historyData && historyData.length > 0 && !isLoading
               ? (
@@ -730,7 +757,7 @@ export function Entry({
         </div>
       )}
     </div>
-  ), [breadcrumbNode, canDelete, canRename, filenameChanged, filenameFieldMode, filenameValue, handleDelete, handleRename, hasRegisteredChanges, headerActionsNode, headerMeta, historyData, isBusy, isFilenameUnlocked, isFormDirty, isLoading, name, path, schemaType, sha, showFilenameField, showHeaderActions]);
+  ), [breadcrumbNode, canDelete, canRename, filenameChanged, filenameFieldMode, filenameValue, handleDelete, handleRename, hasRegisteredChanges, headerActionsNode, headerMeta, historyData, isBusy, isFilenameUnlocked, isFormDirty, isLoading, liveUrl, name, path, schemaType, sha, showFilenameField, showHeaderActions]);
 
   useRepoHeader({ header: headerNode });
 

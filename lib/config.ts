@@ -93,6 +93,14 @@ const normalizeConfig = (configObject: any) => {
   delete configObjectCopy.cache;
   delete configObjectCopy.hide;
 
+  if (
+    configObjectCopy.site &&
+    typeof configObjectCopy.site === "object" &&
+    typeof configObjectCopy.site.baseUrl === "string"
+  ) {
+    configObjectCopy.site.baseUrl = configObjectCopy.site.baseUrl.replace(/\/+$/, "");
+  }
+
   // Resolve component references in `components`
   if (
     configObjectCopy.components &&

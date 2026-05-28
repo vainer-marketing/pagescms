@@ -15,6 +15,7 @@ import { useRepo } from "@/contexts/repo-context";
 import { useUser } from "@/contexts/user-context";
 import { hasGithubIdentity } from "@/lib/authz-shared";
 import { isCacheEnabled, isConfigEnabled } from "@/lib/config";
+import { getSiteBaseUrl } from "@/lib/live-url";
 import { getRootActions } from "@/lib/actions";
 import { getVisits } from "@/lib/tracker";
 import { RepoActionButtons } from "@/components/repo/repo-action-buttons";
@@ -63,6 +64,7 @@ import {
   ChevronRight,
   ChevronsUpDown,
   Database,
+  ExternalLink,
   FileStack,
   FileText,
   FolderOpen,
@@ -367,6 +369,8 @@ export function RepoSidebar() {
     [config?.object],
   );
 
+  const siteBaseUrl = useMemo(() => getSiteBaseUrl(config), [config]);
+
   const getNodeHref = useCallback(
     (node: NavigationNode) => {
       if (!config) return "#";
@@ -569,7 +573,25 @@ export function RepoSidebar() {
     );
   };
 
+  const viewSiteGroup = siteBaseUrl ? (
+    <SidebarGroup key="ViewSite">
+      <SidebarGroupContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <a href={siteBaseUrl} target="_blank" rel="noreferrer">
+                <ExternalLink className="size-4" />
+                <span>View site</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  ) : null;
+
   const groups = [
+    viewSiteGroup,
     renderNavigationGroup("Content", contentNavigation),
     renderNavigationGroup("Media", mediaNavigation),
     rootActions.length > 0 && config
