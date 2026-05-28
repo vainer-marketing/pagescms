@@ -77,7 +77,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical, ExternalLink, FolderPlus, Plus, Search } from "lucide-react";
-import { resolveEntryLiveUrl } from "@/lib/live-url";
+import { getLiveUrlReferencedFields, resolveEntryLiveUrl } from "@/lib/live-url";
 import {
   Tooltip,
   TooltipContent,
@@ -254,11 +254,16 @@ export function Collection({ name, path }: { name: string; path?: string }) {
     () => getSchemaActions(schema, "collection"),
     [schema],
   );
+  const liveUrlFieldRefs = useMemo(
+    () => getLiveUrlReferencedFields(schema),
+    [schema],
+  );
   const requestedFieldPaths = useMemo(() => {
     const paths = new Set<string>(["name", "path", primaryField]);
     viewFields.forEach((item: any) => paths.add(item.path));
+    liveUrlFieldRefs.forEach((ref) => paths.add(ref));
     return Array.from(paths);
-  }, [primaryField, viewFields]);
+  }, [primaryField, viewFields, liveUrlFieldRefs]);
 
   const handleTableSearchChange = useCallback((value: string) => {
     setTableSearch(value);
@@ -555,23 +560,20 @@ export function Collection({ name, path }: { name: string; path?: string }) {
           {row.original.type === "file" && (
             <ButtonGroup>
               {liveUrl && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <a
-                      href={liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "icon-sm" }),
-                      )}
-                      aria-label="View live"
-                    >
-                      <ExternalLink className="size-4" />
-                    </a>
-                  </TooltipTrigger>
-                  <TooltipContent>View live</TooltipContent>
-                </Tooltip>
+                <a
+                  href={liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "gap-1.5",
+                  )}
+                  aria-label="View live"
+                >
+                  <ExternalLink className="size-4" />
+                  <span>View live</span>
+                </a>
               )}
               <Link
                 className={cn(

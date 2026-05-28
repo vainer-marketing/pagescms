@@ -1,8 +1,9 @@
 // Resolves "View site" and "View live" URLs from .pages.yml config.
 // - site.baseUrl (root): the deployed site origin, e.g. "https://sarafreed.com"
-// - view.liveUrl (per content entry): a path template using {slug} or {fields.x}
+// - view.liveUrl (per content entry): a path template using {slug} or {fields.x}.
+//   May be a single string or an array of templates (fallback chain).
 
-import { interpolate } from "@/lib/schema";
+import { safeAccess } from "@/lib/schema";
 import { getFileName } from "@/lib/utils/file";
 
 const stripTrailingSlash = (value: string) => value.replace(/\/+$/, "");
@@ -21,6 +22,48 @@ export function getSiteBaseUrl(config: any): string | null {
   return stripTrailingSlash(baseUrl.trim());
 }
 
+// Resolve a single template against the data. Returns null if any referenced
+// token is missing or empty — caller can fall back to the next template.
+const tryResolveTemplate = (
+  template: string,
+  data: Record<string, any>,
+): string | null => {
+  let allResolved = true;
+  const result = template.replace(/(?<!\\)\{([^}]+)\}/g, (_, token: string) => {
+    let value: unknown = safeAccess(data, token);
+    if (value === undefined && data.fields) {
+      value = safeAccess(data, `fields.${token}`);
+    }
+    if (value === undefined || value === null || value === "") {
+      allResolved = false;
+      return "";
+    }
+    return String(value);
+  }).replace(/\\([{}])/g, "$1");
+  return allResolved ? result : null;
+};
+
+// Returns every {fields.x} or {x} token referenced by the configured liveUrl
+// templates so callers (e.g. the collection list) can request those fields.
+export function getLiveUrlReferencedFields(schema: any): string[] {
+  const liveUrl = schema?.view?.liveUrl;
+  const templates: string[] = Array.isArray(liveUrl)
+    ? liveUrl.filter((t): t is string => typeof t === "string")
+    : typeof liveUrl === "string"
+      ? [liveUrl]
+      : [];
+  const tokens = new Set<string>();
+  templates.forEach((template) => {
+    for (const match of template.matchAll(/(?<!\\)\{([^}]+)\}/g)) {
+      const token = match[1];
+      if (token === "slug") continue;
+      const stripped = token.startsWith("fields.") ? token.slice("fields.".length) : token;
+      tokens.add(stripped);
+    }
+  });
+  return Array.from(tokens);
+}
+
 export function resolveEntryLiveUrl({
   config,
   schema,
@@ -33,9 +76,13 @@ export function resolveEntryLiveUrl({
   fields?: Record<string, any> | null;
 }): string | null {
   const baseUrl = getSiteBaseUrl(config);
-  const template = schema?.view?.liveUrl;
-  if (!baseUrl || typeof template !== "string" || !template.trim()) return null;
-  if (!path) return null;
+  const liveUrl = schema?.view?.liveUrl;
+  const templates: string[] = Array.isArray(liveUrl)
+    ? liveUrl.filter((t): t is string => typeof t === "string" && t.trim().length > 0)
+    : typeof liveUrl === "string" && liveUrl.trim()
+      ? [liveUrl]
+      : [];
+  if (!baseUrl || templates.length === 0 || !path) return null;
 
   const fileBase = getFileName(path).replace(/\.[^.]+$/, "");
   const data: Record<string, any> = {
@@ -43,8 +90,14 @@ export function resolveEntryLiveUrl({
     fields: fields ?? {},
   };
 
-  let resolved = interpolate(template, data, "fields").trim();
-  if (!resolved) return null;
-  if (!resolved.startsWith("/")) resolved = `/${resolved}`;
-  return `${baseUrl}${resolved}`;
+  for (const template of templates) {
+    const resolved = tryResolveTemplate(template, data);
+    if (resolved == null) continue;
+    const trimmed = resolved.trim();
+    if (!trimmed) continue;
+    const joined = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    return `${baseUrl}${joined}`;
+  }
+
+  return null;
 }

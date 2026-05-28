@@ -656,9 +656,20 @@ const ContentLeafSchema = z
             .optional()
             .nullable(),
           liveUrl: z
-            .string({
-              message: "'liveUrl' must be a string template (e.g. '/blog/{slug}').",
-            })
+            .union([
+              z.string({
+                message: "'liveUrl' must be a string template (e.g. '/blog/{slug}').",
+              }),
+              z.array(
+                z.string({
+                  message: "Each 'liveUrl' template must be a string.",
+                }),
+                {
+                  message:
+                    "'liveUrl' may be a string template or an array of templates (fallback chain).",
+                },
+              ),
+            ])
             .optional()
             .nullable(),
         },
