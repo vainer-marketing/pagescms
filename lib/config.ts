@@ -10,7 +10,10 @@ import { ConfigSchema } from "@/lib/config-schema";
 import { z } from "zod";
 import mergeWith from "lodash.mergewith";
 
-const configVersion = "3.0";
+// 3.1 (2026-05-28): introduces `site.baseUrl` + `view.liveUrl` for View site / View live.
+//   Bump invalidates the DB config cache so existing projects re-fetch .pages.yml
+//   from GitHub on the next pageview and pick up the new keys.
+const configVersion = "3.1";
 
 type NavigationNode = {
   type: "group" | "file" | "collection" | "media";
